@@ -1,0 +1,84 @@
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
+
+public class Gym extends JFrame {
+   
+   Gym() {
+      JFrame g = new JFrame();
+      g.setTitle("헬스장 회원 관리 어플");
+      g.setSize(2000,1000);
+      g.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      g.setLayout(new BorderLayout());
+      
+      // 헬스장 이름 Label
+      JLabel gymName = new JLabel("Java Gym");
+      gymName.setHorizontalAlignment(SwingConstants.CENTER);
+      gymName.setFont(new Font("Arial", Font.BOLD, 100));
+      g.add(gymName, BorderLayout.NORTH);
+      
+      // 좌측 5개 버튼 Panel
+      JPanel left = new JPanel();
+      left.setLayout(new GridLayout(5,1));
+      
+      String [] leftbtns = {"회원 관리", "PT 예약", "트레이너 정보", "운동 기록", "멤버십"};
+      for(String label : leftbtns) {
+         JButton lbtns = new JButton(label);
+         lbtns.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+         left.add(lbtns);
+      }
+       
+      left.setPreferredSize(new Dimension(250, 500));
+      g.add(left, BorderLayout.WEST);
+      
+      
+      // 우측 3개 버튼 Panel
+      JPanel right = new JPanel();
+      right.setLayout(new GridLayout(3,1));
+      
+      String [] rightbtns = {"실시간 이용자", "입장", "퇴장"};
+      for(String label : rightbtns) {
+         JButton rbtns = new JButton(label);
+         rbtns.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+         right.add(rbtns);
+      }
+      right.setPreferredSize(new Dimension(250,100));
+      g.add(right, BorderLayout.EAST);
+      
+      g.setVisible(true);
+      
+      
+   }
+   
+   class MemberWindow {
+      public MemberWindow() {
+         JFrame m = new JFrame("회원 관리");
+         m.setSize(600,300);
+         m.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+         
+         JLabel Mlabel = new JLabel("회원 관리 화면입니다.", SwingConstants.CENTER);
+         Mlabel.setFont(new Font("맑은 고딕", Font.PLAIN, 19));
+         m.add(Mlabel);
+         
+         m.setVisible(true);   
+      }
+   }
+
+   public static void main(String[] args) {
+      // 메인
+      Gym gapp = new Gym();
+      
+
+   }
+
+}
