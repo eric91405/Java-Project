@@ -1,0 +1,284 @@
+import java.awt.*;
+import java.awt.event.*;
+import javax.sound.sampled.*;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel; // PT 예약 구현용
+import java.time.LocalDate; // PT 예약 구현용
+import java.time.YearMonth; // PT 예약 구현용
+
+class User {
+    String name;
+    int age;
+    ImageIcon photo;
+    String joinDate;
+    String endDate;
+
+    public User(String name, int age, ImageIcon photo, String joinDate, String endDate) {
+        this.name = name;
+        this.age = age;
+        this.photo = photo;
+        this.joinDate = joinDate;
+        this.endDate = endDate;
+    }
+}
+
+public class Gym extends JFrame {
+
+    private User user;
+    private JFrame userFrame; // 회원 관리 창
+    private JFrame ptFrame; // PT 예약 창
+    private JFrame trainerFrame; // 트레이너 정보 창
+    private JFrame recordFrame; // 운동 기록 창
+    private JFrame membershipFrame; // 멤버십 창
+
+    Gym() {
+        JFrame g = new JFrame();
+        g.setTitle("헬스장 회원 관리 어플");
+        g.setSize(1900, 1000);
+        g.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        g.setLayout(new BorderLayout());
+
+        // 헬스장 이름 Label
+        JLabel gymName = new JLabel("Java Gym");
+        gymName.setHorizontalAlignment(SwingConstants.CENTER);
+        gymName.setFont(new Font("Arial", Font.BOLD, 100));
+        g.add(gymName, BorderLayout.NORTH);
+
+        // 좌측 5개 버튼 Panel
+        JPanel left = new JPanel();
+        left.setLayout(new GridLayout(5, 1));
+
+        String[] leftbtns = {"회원 관리", "PT 예약", "트레이너 정보", "운동 기록", "멤버십"};
+        for (String label : leftbtns) {
+            JButton lbtns = new JButton(label);
+            lbtns.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+            lbtns.addActionListener(new ButtonClickListener(label));
+            left.add(lbtns);
+        }
+
+        left.setPreferredSize(new Dimension(250, 500));
+        g.add(left, BorderLayout.WEST);
+
+        // 우측 3개 버튼 Panel
+        JPanel right = new JPanel();
+        right.setLayout(new GridLayout(3, 1)); // 5행 1열
+
+        // 실시간 이용자 버튼
+        JButton userBtn = new JButton("실시간 이용자");
+        userBtn.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+        userBtn.addActionListener(e -> {
+           JOptionPane.showMessageDialog(g, "미구현");
+        });
+        right.add(userBtn);
+
+        // 입장 버튼
+        JButton enterBtn = new JButton("입장");
+        enterBtn.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+        enterBtn.addActionListener(e -> playSound("enter.wav"));
+        right.add(enterBtn);
+
+        // 퇴장 버튼
+        JButton exitBtn = new JButton("퇴장");
+        exitBtn.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+        exitBtn.addActionListener(e -> playSound("exit.wav"));
+        right.add(exitBtn);
+
+        right.setPreferredSize(new Dimension(250, 100));
+        g.add(right, BorderLayout.EAST);
+
+        // 회원 정보
+        user = new User("전형준", 23, new ImageIcon(getClass().getResource("/images/Image1.jpg")), "2023-11-26", "2024-11-26");
+
+        g.setVisible(true);
+    }
+
+    private void playSound(String soundFile) {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(getClass().getResource(soundFile));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class ButtonClickListener implements ActionListener {
+        private String buttonLabel;
+
+        public ButtonClickListener(String label) {
+            this.buttonLabel = label;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            switch (buttonLabel) {
+                case "회원 관리":
+                    if (userFrame == null || !userFrame.isVisible()) {
+                        userFrame = new JFrame("회원 관리");
+                        userFrame.setSize(900, 600);
+                        userFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        userFrame.setLayout(new GridLayout(5, 1));
+
+                        // 회원 정보
+                        JLabel nameLabel = new JLabel("이름: " + user.name);
+                        JLabel ageLabel = new JLabel("나이: " + user.age);
+                        JLabel joinDateLabel = new JLabel("가입 날짜: " + user.joinDate);
+                        JLabel endDateLabel = new JLabel("해지 날짜: " + user.endDate);
+                        JLabel photoLabel = new JLabel(user.photo);
+
+                        // 패널에 추가
+                        userFrame.add(photoLabel);
+                        userFrame.add(nameLabel);
+                        userFrame.add(ageLabel);
+                        userFrame.add(joinDateLabel);
+                        userFrame.add(endDateLabel);
+
+                        userFrame.setVisible(true);
+                    }
+                    break;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+                case "PT 예약": // 내가 구현할 부분
+                    if (ptFrame == null || !ptFrame.isVisible()) {
+                        ptFrame = new JFrame("PT 예약");
+                        ptFrame.setSize(900, 600);
+                        ptFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+                        String[] columnNames = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+                        DefaultTableModel calendarModel = new DefaultTableModel(null, columnNames);
+                        JTable calendarTable = new JTable(calendarModel);
+                        calendarTable.setRowHeight(40);
+
+                        LocalDate now = LocalDate.now();
+                        fillCalendar(calendarModel, now.getYear(), now.getMonthValue());
+
+                        calendarTable.addMouseListener(new java.awt.event.MouseAdapter() {
+                            public void mouseClicked(java.awt.event.MouseEvent e) {
+                                int row = calendarTable.getSelectedRow();
+                                int col = calendarTable.getSelectedColumn();
+                                Object value = calendarTable.getValueAt(row, col);
+
+                                if (value != null && !value.toString().isEmpty()) {
+                                    calendarTable.setValueAt("예약 완료", row, col);
+                                }
+                            }
+                        });
+
+                        JScrollPane scrollPane = new JScrollPane(calendarTable);
+                        ptFrame.add(scrollPane);
+
+                        ptFrame.setVisible(true);
+                    }
+                    break;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+                case "트레이너 정보": // 내가 구현할 부분
+                    if (trainerFrame == null || !trainerFrame.isVisible()) {
+                        trainerFrame = new JFrame("트레이너 정보");
+                        trainerFrame.setSize(900, 600);
+                        trainerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+                        JPanel trainerPanel = new JPanel(); // 컴포넌트 배치를 위한 패널 생성
+                        trainerPanel.setLayout(new GridLayout(3, 1, 10, 10)); // GridLayout으로 트레이너 3명 배치
+
+                        // 트레이너 데이터, 데이터 내용 수정해야 됨
+                        String[] trainerNames = {"김민서", "전형준", "유상미"};
+                        String[] purpose = {"다이어트", "벌크업", "재활 운동"};
+                        String[] experiences = {"1년 경력", "3년 경력", "5년 경력"};
+
+                        ImageIcon[] photos = {
+                                // 이미지 파일 크기 수정해야 됨
+                                new ImageIcon(getClass().getResource("/images/trainer1.png")),
+                                new ImageIcon(getClass().getResource("/images/trainer2.png")),
+                                new ImageIcon(getClass().getResource("/images/trainer3.png"))
+                        };
+
+                        for (int i = 0; i < trainerNames.length; i++) {
+                            // 트레이너별 개별 정보 담는 공간
+                            JPanel trainerBox = new JPanel();
+                            // 정보 그리드 배치
+                            trainerBox.setLayout(new BorderLayout());
+
+                            // 트레이너 사진
+                            JLabel photoLabel = new JLabel(photos[i]);
+                            photoLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+                            // 트레이너 정보 배치용
+                            JPanel trainerData = new JPanel(new GridLayout(3, 1));
+                            trainerData.add(new JLabel("이름: " + trainerNames[i]));
+                            trainerData.add(new JLabel("전문 분야: " + purpose[i]));
+                            trainerData.add(new JLabel("경력: " + experiences[i]));
+
+                            trainerBox.add(photoLabel, BorderLayout.WEST);
+                            trainerBox.add(trainerData, BorderLayout.CENTER);
+
+                            trainerPanel.add(trainerBox);
+                        }
+                        // 메인 패널에 추가
+                        trainerFrame.add(trainerPanel, BorderLayout.CENTER);
+
+                        // 창 보이기
+                        trainerFrame.setVisible(true);
+                    }
+                    break;
+                case "운동 기록":
+                    if (recordFrame == null || !recordFrame.isVisible()) {
+                        recordFrame = new JFrame("운동 기록");
+                        recordFrame.setSize(900, 600);
+                        recordFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        JLabel label4 = new JLabel("운동 기록 화면입니다.", SwingConstants.CENTER);
+                        label4.setFont(new Font("맑은 고딕", Font.PLAIN, 19));
+                        recordFrame.add(label4);
+                        recordFrame.setVisible(true);
+                    }
+                    break;
+                case "멤버십":
+                    if (membershipFrame == null || !membershipFrame.isVisible()) {
+                        membershipFrame = new JFrame("멤버십");
+                        membershipFrame.setSize(900, 600);
+                        membershipFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        JLabel label5 = new JLabel("멤버십 화면입니다.", SwingConstants.CENTER);
+                        label5.setFont(new Font("맑은 고딕", Font.PLAIN, 19));
+                        membershipFrame.add(label5);
+                        membershipFrame.setVisible(true);
+                    }
+                    break;
+                // 추가적인 버튼에 대한 처리도 필요하면 여기에 추가
+            }
+        }
+    }
+
+    private void fillCalendar(DefaultTableModel model, int year, int month) {
+        model.setRowCount(0); // 기존 데이터 지우기
+        YearMonth ym = YearMonth.of(year, month); // 해당 년월 가져오기
+        int daysInMonth = ym.lengthOfMonth(); // 그 달의 일 수
+        int firstDay = LocalDate.of(year, month, 1).getDayOfWeek().getValue() % 7; // 첫날 요일 (일요일 = 0)
+
+        Object[] week = new Object[7];
+        int day = 1;
+
+        for (int i = 0; i < firstDay; i++) {
+            week[i] = ""; // 첫 주 빈칸 채우기
+        }
+        for (int i = firstDay; i < 7; i++) {
+            week[i] = day++; // 첫 주 날짜 채우기
+        }
+        model.addRow(week);
+
+        while (day <= daysInMonth) {
+            week = new Object[7];
+            for (int i = 0; i < 7 && day <= daysInMonth; i++) {
+                week[i] = day++; // 남은 날짜 채우기
+            }
+            model.addRow(week);
+        }
+    }
+
+    public static void main(String[] args) {
+        // 메인
+        Gym gapp = new Gym();
+    }
+}
