@@ -1,0 +1,190 @@
+import java.awt.*;
+import java.awt.event.*;
+import javax.sound.sampled.*;
+import javax.swing.*;
+
+class User {
+    String name;
+    int age;
+    ImageIcon photo;
+    String joinDate;
+    String endDate;
+
+    public User(String name, int age, ImageIcon photo, String joinDate, String endDate) {
+        this.name = name;
+        this.age = age;
+        this.photo = photo;
+        this.joinDate = joinDate;
+        this.endDate = endDate;
+    }
+}
+
+public class Gym extends JFrame {
+   
+    private User user;
+    private JFrame userFrame; // 회원 관리 창
+    private JFrame ptFrame; // PT 예약 창
+    private JFrame trainerFrame; // 트레이너 정보 창
+    private JFrame recordFrame; // 운동 기록 창
+    private JFrame membershipFrame; // 멤버십 창
+
+    Gym() {
+        JFrame g = new JFrame();
+        g.setTitle("헬스장 회원 관리 어플");
+        g.setSize(2000, 1000);
+        g.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        g.setLayout(new BorderLayout());
+
+        // 헬스장 이름 Label
+        JLabel gymName = new JLabel("Java Gym");
+        gymName.setHorizontalAlignment(SwingConstants.CENTER);
+        gymName.setFont(new Font("Arial", Font.BOLD, 100));
+        g.add(gymName, BorderLayout.NORTH);
+
+        // 좌측 5개 버튼 Panel
+        JPanel left = new JPanel();
+        left.setLayout(new GridLayout(5, 1));
+
+        String[] leftbtns = {"회원 관리", "PT 예약", "트레이너 정보", "운동 기록", "멤버십"};
+        for (String label : leftbtns) {
+            JButton lbtns = new JButton(label);
+            lbtns.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+            lbtns.addActionListener(new ButtonClickListener(label));
+            left.add(lbtns);
+        }
+
+        left.setPreferredSize(new Dimension(250, 500));
+        g.add(left, BorderLayout.WEST);
+
+        // 우측 3개 버튼 Panel
+        JPanel right = new JPanel();
+        right.setLayout(new GridLayout(3, 1)); // 5행 1열
+        
+        // 실시간 이용자 버튼
+        JButton userBtn = new JButton("실시간 이용자");
+        userBtn.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+        userBtn.addActionListener(e -> {
+           JOptionPane.showMessageDialog(g, "미구현");
+        });
+        right.add(userBtn);
+        
+        // 입장 버튼
+        JButton enterBtn = new JButton("입장");
+        enterBtn.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+        enterBtn.addActionListener(e -> playSound("enter.wav"));
+        right.add(enterBtn);
+        
+        // 퇴장 버튼
+        JButton exitBtn = new JButton("퇴장");
+        exitBtn.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+        exitBtn.addActionListener(e -> playSound("exit.wav"));
+        right.add(exitBtn);
+
+        right.setPreferredSize(new Dimension(250, 100));
+        g.add(right, BorderLayout.EAST);
+        
+        // 회원 정보
+        //user = new User("전형준", 23, new ImageIcon(getClass().getResource("/images/Image1.png")), "2023-11-26", "2024-11-26");
+
+        g.setVisible(true);
+    }
+
+    private void playSound(String soundFile) {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(getClass().getResource(soundFile));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class ButtonClickListener implements ActionListener {
+        private String buttonLabel;
+
+        public ButtonClickListener(String label) {
+            this.buttonLabel = label;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            switch (buttonLabel) {
+                case "회원 관리":
+                    if (userFrame == null || !userFrame.isVisible()) {
+                        userFrame = new JFrame("회원 관리");
+                        userFrame.setSize(900, 600);
+                        userFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        userFrame.setLayout(new GridLayout(5, 1));
+                        
+                        // 회원 정보
+                        JLabel nameLabel = new JLabel("이름: "+user.name);
+                        JLabel ageLabel = new JLabel("나이: "+user.age);
+                        JLabel joinDateLabel = new JLabel("가입 날짜: "+user.joinDate);
+                        JLabel endDateLabel = new JLabel("해지 날짜: "+user.endDate);
+                        JLabel photoLabel = new JLabel(user.photo);
+                        
+                        // 패널에 추가
+                        userFrame.add(photoLabel);
+                        userFrame.add(nameLabel);
+                        userFrame.add(ageLabel);
+                        userFrame.add(joinDateLabel);
+                        userFrame.add(endDateLabel);
+                        
+                        userFrame.setVisible(true);
+                    }
+                    break;
+                case "PT 예약":
+                    if (ptFrame == null || !ptFrame.isVisible()) {
+                        ptFrame = new JFrame("PT 예약");
+                        ptFrame.setSize(900, 600);
+                        ptFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        JLabel label2 = new JLabel("PT 예약 화면입니다.", SwingConstants.CENTER);
+                        label2.setFont(new Font("맑은 고딕", Font.PLAIN, 19));
+                        ptFrame.add(label2);
+                        ptFrame.setVisible(true);
+                    }
+                    break;
+                case "트레이너 정보":
+                    if (trainerFrame == null || !trainerFrame.isVisible()) {
+                        trainerFrame = new JFrame("트레이너 정보");
+                        trainerFrame.setSize(900, 600);
+                        trainerFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        JLabel label3 = new JLabel("트레이너 정보 화면입니다.", SwingConstants.CENTER);
+                        label3.setFont(new Font("맑은 고딕", Font.PLAIN, 19));
+                        trainerFrame.add(label3);
+                        trainerFrame.setVisible(true);
+                    }
+                    break;
+                case "운동 기록":
+                    if (recordFrame == null || !recordFrame.isVisible()) {
+                        recordFrame = new JFrame("운동 기록");
+                        recordFrame.setSize(900, 600);
+                        recordFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        JLabel label4 = new JLabel("운동 기록 화면입니다.", SwingConstants.CENTER);
+                        label4.setFont(new Font("맑은 고딕", Font.PLAIN, 19));
+                        recordFrame.add(label4);
+                        recordFrame.setVisible(true);
+                    }
+                    break;
+                case "멤버십":
+                    if (membershipFrame == null || !membershipFrame.isVisible()) {
+                        membershipFrame = new JFrame("멤버십");
+                        membershipFrame.setSize(900, 600);
+                        membershipFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                        JLabel label5 = new JLabel("멤버십 화면입니다.", SwingConstants.CENTER);
+                        label5.setFont(new Font("맑은 고딕", Font.PLAIN, 19));
+                        membershipFrame.add(label5);
+                        membershipFrame.setVisible(true);
+                    }
+                    break;
+                // 추가적인 버튼에 대한 처리도 필요하면 여기에 추가
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        // 메인
+        Gym gapp = new Gym();
+    }
+}
